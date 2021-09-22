@@ -35,11 +35,8 @@ var addTwoNumbers = (l1, l2) => {
 }
 
 //possible worst-case scenarios..
-let l1 = createLL([2,4,9]);
-//let l1 = createLL([9,9,9,9,9,9,9]);
-//let l1 = createLL([1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]);
-//let l2 = createLL([9,9,9,9,9,9,9]);
-let l2 = createLL([5,6,4]);
+let l1 = createLL([9,9,9,9,9,9,9]);
+let l2 = createLL([1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]);
 
 console.log(arrayFromLL(addTwoNumbers(l1, l2)));
 
