@@ -1,6 +1,6 @@
 //given A of length N find smallest positive integer that does not occur in A assuming each element in A is in range [-1M, 1M] and N is in range [1, 100K]
 
-function uniqSort (arr = []) {
+function uniqSort(arr = []) {
    const map = {};
    const res = [];
    for (let i = 0; i < arr.length; i++) {
@@ -15,7 +15,6 @@ function uniqSort (arr = []) {
 function solution(A) {
     let c = 1;
     A = uniqSort(A);
-    console.log(A)
     let N = Math.min(A.length, 100000);
     for (let b = 0; b < N; b++) {
         if(A[b] > 0) {
