@@ -1,6 +1,6 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const scl = 10;
+const scl = 8;
 const inf = 300000;
 const unit = canvas.width / scl; 
 
@@ -107,7 +107,7 @@ function AStar() {
 	}
 
 	for(let node of closedSet) {
-		node.render('#FF5555');
+		node.render('#FF79C6');
 	}
 
 	current = lowestNodeOpenSet();
@@ -134,13 +134,9 @@ function AStar() {
 	}
 }
 
-let interval = 0;
 let done = false;
 function render(time) {
-	if((time-interval) >= 1) {
-		interval = time;
-		done = AStar();	
-	}
+	done = AStar();	
 	if (done) {
 		console.log('Done!');
 		window.cancelAnimationFrame(anim);
