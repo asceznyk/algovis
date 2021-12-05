@@ -2,6 +2,7 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const scl = 20;
 const inf = 300000;
+const unit = canvas.width / scl; 
 
 ctx.scale(scl, scl);
 
@@ -12,32 +13,34 @@ class Node {
 
 		this.gScore = inf;
 		this.fScore = inf;
+		this.cameFrom = null;
 
 		this.wall = Math.random() < 0.2 ? 1 : 0; 
 	}
 
-	render (signal) {
+	render(signal) {
 		if(this.wall) {
 			ctx.fillStyle = '#000';
 		} else {
 			ctx.fillStyle = signal;
 		}
-		ctx.fillRect(this.y, this.x, 1, 1);
+		ctx.fillRect(this.x, this.y, 1, 1);
 	}
 }
 
 let nodes = [];
 function initNodes() {
-	for (let i = 0; i <	Math.pow(canvas.width/scl, 2); i++) {
-		nodes.push(new Node(i % 20, Math.floor(i / 20)));
+	for (let y = 0; y <	unit; y++) {
+		nodes[y] = [];
+		for(let x = 0; x < unit; x++) {
+			nodes[y][x] = new Node(x, y);
+		}
 	}
 }
 initNodes();
 
-function euclidDist(n1, n2) {
-	let a = n1.x - n2.x;
-	let b = n1.y - n2.y;
-	return Math.sqrt(a*a + b*b);
+function heuristic(n1, n2) {
+	return Math.abs(n2.x - n1.x) + Math.abs(n2.y-n1.y);
 }
 
 function lowestNodeOpenSet() {
@@ -54,14 +57,13 @@ function lowestNodeOpenSet() {
 }
 
 function getNeighbours(node) {
-	let dirs = [scl, -scl, 1, -1];
-	let idx = node.y * scl + node.x;
 	let neighbours = [];
-	for (let d of dirs) {
-		let k = (idx + d);
-		if(nodes[k] != undefined) {
-			if(!nodes[k].wall) {
-				neighbours.push(nodes[k]);
+	for (let d of [[0,1], [0,-1], [1,0], [-1,0]]) {
+		let [dy, dx] = d;
+		if(nodes[node.y + dy] != undefined && nodes[node.y + dy][node.x + dx] != undefined) {
+			let next = nodes[node.y + dy][node.x + dx];
+			if(!next.wall) {
+				neighbours.push(next);
 			}
 		}
 	}
@@ -69,51 +71,72 @@ function getNeighbours(node) {
 	return neighbours;
 }
 
-let start = nodes[0];
-let goal = nodes[nodes.length - 1];
+function showNodes() {
+	for(let y = 0; y < unit; y++) {
+		for(let x = 0; x < unit; x++) {
+			nodes[y][x].render('#fff');
+		}
+	}
+}
+
+function renderPath(current) {
+	while(current != null) {
+		current.render('#E4F34A');
+		current = current.cameFrom;
+	}
+}
+
+let start = nodes[0][0];
+let goal = nodes[nodes.length-1][nodes.length-1];
 
 let openSet = [start];
-let cameFrom = {};
 
 start.gScore = 0;
-start.fScore = euclidDist(start, goal);
+start.fScore = heuristic(start, goal);
 
 let current;
-function AStar() {
-	for (let i = 0; i <	Math.pow(canvas.width/scl, 2); i++) {
-		nodes[i].render('#FF5555');
-	}
 
+function AStar() {
 	current = lowestNodeOpenSet();
 	if(current == goal) {
-		return false;
+		return true;
 	}
+	showNodes();
+	current.render('#8BE9FD');
+	renderPath(current);
 
 	openSet = arrayRemove(openSet, current);
-	let neighbours = getNeighbours(current);
 
-	for(let neighbour of neighbours) {
+	for(let node of openSet) {
+		node.render('#6272A4');
+	}
+
+	for (let next of getNeighbours(current)) {
 		let tentative = current.gScore + 1;
-		let idx = neighbour.y * scl + neighbour.x;
-		if(tentative <= neighbour.gScore) {
-			cameFrom[idx] = current;
-			neighbour.gScore = tentative;
-			neighbour.fScore = neighbour.gScore + euclidDist(neighbour, goal);
+		if(tentative < next.gScore) {
+			next.cameFrom = current;
+			next.gScore = tentative;
+			next.fScore = tentative + heuristic(next, goal);	
 
-			if(!openSet.includes(neighbour)) {
-				openSet.push(neighbour);
+			if(!containsObject(next, openSet)) {
+				openSet.push(next);
 			}
 		}
 	}
 }
 
 let interval = 0;
+let done = false;
 function render(time) {
-	if((time-interval) >= 100) {
+	if((time-interval) >= 25) {
 		interval = time;
-		AStar();
+		done = AStar();	
+	}
+	if (done) {
+		console.log('Done!');
+		window.cancelAnimationFrame(anim);
 	}
 	window.requestAnimationFrame(render);
 } 
-window.requestAnimationFrame(render);
+let anim = window.requestAnimationFrame(render);
 
