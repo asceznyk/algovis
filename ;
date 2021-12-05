@@ -1,6 +1,6 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const scl = 10;
+const scl = 20;
 const inf = 300000;
 const unit = canvas.width / scl; 
 
@@ -15,7 +15,7 @@ class Node {
 		this.fScore = inf;
 		this.cameFrom = null;
 
-		this.wall = Math.random() < 0.3 ? 1 : 0; 
+		this.wall = Math.random() < 0.2 ? 1 : 0; 
 	}
 
 	render(signal) {
@@ -90,43 +90,34 @@ let start = nodes[0][0];
 let goal = nodes[nodes.length-1][nodes.length-1];
 
 let openSet = [start];
-let closedSet = [];
 
 start.gScore = 0;
 start.fScore = heuristic(start, goal);
-start.wall = false;
-goal.wall = false;
 
 let current;
 
 function AStar() {
-	showNodes();
-
-	for(let node of openSet) {
-		node.render('#6272A4');
-	}
-
-	for(let node of closedSet) {
-		node.render('#FF5555');
-	}
-
 	current = lowestNodeOpenSet();
+	showNodes();
 	current.render('#8BE9FD');
 	renderPath(current);
 
-	if(current == goal || openSet.length <= 0) {
+	if(current == goal) {
 		return true;
 	}
 
 	openSet = arrayRemove(openSet, current);
-	closedSet.push(current);
+
+	for(let node of openSet) {
+		node.render('#6272A4');
+	}
 
 	for (let next of getNeighbours(current)) {
 		let tentative = current.gScore + 1;
 		if(tentative < next.gScore) {
 			next.cameFrom = current;
 			next.gScore = tentative;
-			next.fScore = tentative + heuristic(next, goal);
+			next.fScore = tentative + heuristic(next, goal);	
 
 			if(!containsObject(next, openSet)) {
 				openSet.push(next);
@@ -138,7 +129,7 @@ function AStar() {
 let interval = 0;
 let done = false;
 function render(time) {
-	if((time-interval) >= 1) {
+	if((time-interval) >= 25) {
 		interval = time;
 		done = AStar();	
 	}
