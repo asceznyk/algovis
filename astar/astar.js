@@ -103,7 +103,7 @@ function AStar() {
 	showNodes();
 
 	for(let node of openSet) {
-		node.render('#6272A4');
+		node.render('#BD93F9');
 	}
 
 	for(let node of closedSet) {
@@ -111,7 +111,6 @@ function AStar() {
 	}
 
 	current = lowestNodeOpenSet();
-	current.render('#8BE9FD');
 	renderPath(current);
 
 	if(current == goal || openSet.length <= 0) {
